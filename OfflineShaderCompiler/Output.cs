@@ -37,7 +37,8 @@ namespace OfflineShaderCompiler
 	/// </summary>
 	public class Snip
 	{
-		int programID, platforms, unknown1, target, unknown2, hash1, hash2, hash3;
+		int programID, unknown1, target, unknown2, hash1, hash2, hash3;
+		PlatformBitwise platforms;
 		string text;
 		IList<Configuration> configurations;
 
@@ -52,7 +53,7 @@ namespace OfflineShaderCompiler
 		/// <summary>
 		/// Indicates what platforms are compatible. Bitwise combination? Unsure.
 		/// </summary>
-		public int Platforms
+		public PlatformBitwise Platforms
 		{
 			get { return platforms; }
 		}
@@ -93,7 +94,7 @@ namespace OfflineShaderCompiler
 			IList<Configuration> configurations)
 		{
 			this.programID = intParams[0];
-			this.platforms = intParams[1];
+			this.platforms = (PlatformBitwise)intParams[1];
 			this.unknown1 = intParams[2]; // This is usually 3
 			this.target = intParams[3];
 			this.unknown2 = intParams[4]; // This is usually 0

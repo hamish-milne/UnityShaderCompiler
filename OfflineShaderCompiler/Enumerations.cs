@@ -35,6 +35,25 @@ namespace OfflineShaderCompiler
 	}
 
 	/// <summary>
+	/// The platform IDs in bitwise form
+	/// </summary>
+	public enum PlatformBitwise
+	{
+		OpenGL = 1,
+		D3D9 = 2,
+		Xbox360 = 4,
+		PS3 = 8,
+		D3D11 = 16,
+		GLES = 32,
+		GLESDesktop = 64,
+		Flash = 128,
+		D3D11_9x = 256,
+		GLES3 = 512,
+		PSP2 = 1024,
+		PS4 = 2048,
+	}
+
+	/// <summary>
 	/// Whether the shader is for vertices or pixels
 	/// </summary>
 	public enum Function
