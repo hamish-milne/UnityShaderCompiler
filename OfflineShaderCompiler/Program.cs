@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace UnityShaderCompiler
+namespace OfflineShaderCompiler
 {
 	class Program
 	{

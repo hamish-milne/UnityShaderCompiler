@@ -7,7 +7,7 @@ using System.Diagnostics;
 using System.Threading;
 using System.Runtime.InteropServices;
 
-namespace UnityShaderCompiler
+namespace UnityShaderCompilerIntercept
 {
 
 	class Program
@@ -89,7 +89,7 @@ namespace UnityShaderCompiler
 					output = 1;
 					break;
 				case "c:compileSnippet\n":
-					input = 7;
+					input = 7 + 1; // Add the number of keywords
 					waitFor = "shader:";
 					output = 1;
 					break;

@@ -3,8 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace UnityShaderCompiler
+namespace OfflineShaderCompiler
 {
+	/// <summary>
+	/// Compiler error level
+	/// </summary>
 	public enum ErrorLevel
 	{
 		Info = 0,
@@ -12,6 +15,9 @@ namespace UnityShaderCompiler
 		Error = 2
 	}
 
+	/// <summary>
+	/// The various platforms supported by Unity
+	/// </summary>
 	public enum Platform
 	{
 		OpenGL = 0,
@@ -28,6 +34,9 @@ namespace UnityShaderCompiler
 		PS4 = 11,
 	}
 
+	/// <summary>
+	/// Whether the shader is for vertices or pixels
+	/// </summary>
 	public enum Function
 	{
 		Vertex = 0,
