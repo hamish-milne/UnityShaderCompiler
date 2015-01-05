@@ -413,9 +413,8 @@ namespace OfflineShaderCompiler
 		/// </summary>
 		/// <param name="source">The source code</param>
 		/// <param name="location">The folder this file is found in, for error reporting</param>
-		/// <param name="unknownParam">Unknown. 0 in all instances; changing it usually results in no output</param>
 		/// <returns>An object containing all the relevant output</returns>
-		public PreprocessResult Preprocess(string source, string location, int unknownParam = 0)
+		public PreprocessResult Preprocess(string source, string location)
 		{
 			if (IsDisposed)
 				throw new ObjectDisposedException("CompilerService");
@@ -425,7 +424,7 @@ namespace OfflineShaderCompiler
 			WriteMessage(EscapeInput(source));
 			WriteMessage(location);
 			WriteMessage(IncludePath);
-			WriteMessage(unknownParam.ToString());
+			WriteMessage("0"); // No idea what this is for
 
 			var snips = new List<Snip>();
 			var intParams = new int[9];
@@ -481,7 +480,7 @@ namespace OfflineShaderCompiler
 						{
 							throw new ExternalCompilerException("Shader token is not a number");
 						}
-						return new PreprocessResult(UnescapeOutput(ReadMessage()), snips, errors, unknownID, (ok != 0));
+						return new PreprocessResult(location, UnescapeOutput(ReadMessage()), snips, errors, unknownID, (ok != 0));
 				}
 			}
 		}
@@ -500,6 +499,16 @@ namespace OfflineShaderCompiler
 				throw new ArgumentNullException("snip");
 			var config = snip.Configurations[configuration];
 			return CompileSnippet(snip.Text, location, config.Keywords, platform, config.Function);
+		}
+
+		public string Compile(string source, string location)
+		{
+			return Compile(Preprocess(source, location));
+		}
+
+		public string Compile(PreprocessResult preprocessResult)
+		{
+			return "";
 		}
 
 		/// <inheritdoc />

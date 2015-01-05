@@ -87,7 +87,6 @@ namespace OfflineShaderCompiler
 		};
 
 		string variable, semantic;
-		int unused;
 
 		/// <inheritdoc />
 		public override string Command
@@ -141,7 +140,6 @@ namespace OfflineShaderCompiler
 			var newBinding = new Input();
 			newBinding.variable = variable;
 			newBinding.semantic = semantic;
-			newBinding.unused = unused;
 			bindings.Add(newBinding);
 		}
 	}
@@ -152,8 +150,8 @@ namespace OfflineShaderCompiler
 	public class ConstBuffer : Binding
 	{
 		string name;
-		int value;
-		int unused;
+		int size;
+		int unknown;
 
 		/// <inheritdoc />
 		public override string Command
@@ -164,7 +162,7 @@ namespace OfflineShaderCompiler
 		/// <inheritdoc />
 		public override string ToString()
 		{
-			return "ConstBuffer \"" + name + "\" " + value + "\n";
+			return "ConstBuffer \"" + name + "\" " + size + "\n";
 		}
 
 		/// <summary>
@@ -176,11 +174,11 @@ namespace OfflineShaderCompiler
 		}
 
 		/// <summary>
-		/// Some sort of value or ID
+		/// The size of the buffer
 		/// </summary>
-		public int Value
+		public int Size
 		{
-			get { return value; }
+			get { return size; }
 		}
 
 		/// <inheritdoc />
@@ -190,7 +188,7 @@ namespace OfflineShaderCompiler
 				throw new ExternalCompilerException("ConstBuffer has too few parameters");
 			var newBinding = new ConstBuffer();
 			newBinding.name = tokens[1];
-			if (!Int32.TryParse(tokens[2], out newBinding.value) || !Int32.TryParse(tokens[3], out newBinding.unused))
+			if (!Int32.TryParse(tokens[2], out newBinding.size) || !Int32.TryParse(tokens[3], out newBinding.unknown))
 				throw new ExternalCompilerException("Invalid ConstBuffer token");
 			bindings.Add(newBinding);
 		}
@@ -213,7 +211,7 @@ namespace OfflineShaderCompiler
 		}
 
 		/// <summary>
-		/// Some sort of ID
+		/// The buffer ID to bind
 		/// </summary>
 		public int ID
 		{
@@ -254,11 +252,11 @@ namespace OfflineShaderCompiler
 	public class Const : Binding
 	{
 		string name;
-		int id;
-		bool integer;
+		int offset;
+		DataType type;
 		int rows;
 		int cols;
-		int unknown;
+		int bufferID;
 
 		/// <inheritdoc />
 		public override string Command
@@ -275,19 +273,19 @@ namespace OfflineShaderCompiler
 		}
 
 		/// <summary>
-		/// Some sort of ID
+		/// The offset of the variable in the buffer
 		/// </summary>
-		public int ID
+		public int Offset
 		{
-			get { return id; }
+			get { return offset; }
 		}
 
 		/// <summary>
-		/// Whether this is an integer or a float
+		/// The data type for this variable
 		/// </summary>
-		public bool Integer
+		public DataType Type
 		{
-			get { return integer; }
+			get { return type; }
 		}
 
 		/// <summary>
@@ -306,40 +304,53 @@ namespace OfflineShaderCompiler
 			get { return cols; }
 		}
 
+		public int BufferID
+		{
+			get { return bufferID; }
+		}
+
 		// Used to find the type name for any configuration
-		static string[, ,] typeNames = new string[2, 4, 4]
+		static string[, ,] typeNames = new string[3, 4, 4]
 		{
 			{
-				{ "Float ", "Vector ", "Vector ", "Vector " },
+				{ "Float", "Vector", "Vector", "Vector" },
 				{ null, null, null, null },
 				{ null, null, null, null },
-				{ null, null, null, "Matrix " },
+				{ null, null, null, "Matrix" },
 			},
 			{
-				{ "ScalarInt ", null, null, null },
+				{ "ScalarInt", "VectorInt", "VectorInt", "VectorInt" },
 				{ null, null, null, null },
 				{ null, null, null, null },
 				{ null, null, null, null },
-			}
+			},
+			{
+				{ "ScalarBool", "VectorBool", "VectorBool", "VectorBool" },
+				{ null, null, null, null },
+				{ null, null, null, null },
+				{ null, null, null, null },
+			},
 		};
 
 		// Used to make string conversion a little faster
-		static string[] concatArray = new string[7];
+		static string[] concatArray = new string[8];
 
 		/// <inheritdoc />
 		public override string ToString()
 		{
+			// TODO: Add BufferID
 			if(rows < 1 || cols < 1 || rows > 4 || cols > 4)
 				return "// Invalid rows/cols for const\n";
-			concatArray[0] = typeNames[integer ? 0 : 1, rows - 1, cols - 1];
+			concatArray[0] = typeNames[(int)type, rows - 1, cols - 1];
 			if(concatArray[0] == null)
 				return "// I don't know the type name for " + name + "\n";
-			concatArray[1] = id.ToString();
-			concatArray[2] = " [";
-			concatArray[3] = name;
-			concatArray[4] = "] ";
-			concatArray[5] = (rows == 1 && (cols == 2 || cols == 3)) ? cols.ToString() : "";
-			concatArray[6] = "\n";
+			concatArray[1] = " ";
+			concatArray[2] = offset.ToString();
+			concatArray[3] = " [";
+			concatArray[4] = name;
+			concatArray[5] = "] ";
+			concatArray[6] = (rows == 1 && (cols == 2 || cols == 3)) ? cols.ToString() : "";
+			concatArray[7] = "\n";
 			return String.Concat(concatArray);
 		}
 
@@ -353,11 +364,11 @@ namespace OfflineShaderCompiler
 			newBinding.name = tokens[1];
 			try
 			{
-				newBinding.id = Int32.Parse(tokens[2]);
-				newBinding.integer = (Int32.Parse(tokens[3]) != 0);
+				newBinding.offset = Int32.Parse(tokens[2]);
+				newBinding.type = (DataType)Int32.Parse(tokens[3]);
 				newBinding.rows = Int32.Parse(tokens[4]);
 				newBinding.cols = Int32.Parse(tokens[5]);
-				newBinding.unknown = Int32.Parse(tokens[6]);
+				newBinding.bufferID = Int32.Parse(tokens[6]);
 			}
 			catch (FormatException)
 			{
@@ -458,10 +469,10 @@ namespace OfflineShaderCompiler
 		// Enumerates the names given to different texture dimensions
 		static string[] dimensionName = new string[]
 		{
-			"1D ",
-			"2D ",
-			"3D ",
-			"CUBE "
+			"1D",
+			"2D",
+			"3D",
+			"CUBE"
 		};
 
 		/// <inheritdoc />
@@ -471,7 +482,7 @@ namespace OfflineShaderCompiler
 				return "";
 			if (dimensions > 4)
 				return "// Too many dimensions\n";
-			return "SetTexture " + id + " [" + name + "] " + dimensionName[dimensions - 1] + value + "\n";
+			return "SetTexture " + id + " [" + name + "] " + dimensionName[dimensions - 1] + " " + value + "\n";
 		}
 
 		/// <inheritdoc />

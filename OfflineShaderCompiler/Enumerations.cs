@@ -1,7 +1,6 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 namespace OfflineShaderCompiler
 {
@@ -53,6 +52,65 @@ namespace OfflineShaderCompiler
 		PS4 = 2048,
 	}
 
+	public static class Extensions
+	{
+		class PlatformEnumerable : IEnumerable<Platform>
+		{
+			PlatformBitwise platforms;
+
+			public IEnumerator<Platform> GetEnumerator()
+			{
+				return new PlatformEnumerator(platforms);
+			}
+
+			IEnumerator IEnumerable.GetEnumerator()
+			{
+				return GetEnumerator();
+			}
+
+			public PlatformEnumerable(PlatformBitwise platforms)
+			{
+				this.platforms = platforms;
+			}
+		}
+
+		class PlatformEnumerator : IEnumerator<Platform>
+		{
+			PlatformBitwise platforms;
+			int current = -1;
+
+			public void Reset()
+			{
+				current = -1;
+			}
+
+			public void MoveNext()
+			{
+				while (((int)platforms & (1 << ++current)) == 0) ;
+			}
+
+			public Platform Current
+			{
+				get { return (Platform)(1 << current); }
+			}
+
+			object IEnumerator.Current
+			{
+				get { return Current; }
+			}
+
+			public PlatformEnumerator(PlatformBitwise platforms)
+			{
+				this.platforms = platforms;
+			}
+		}
+
+		public IEnumerable<Platform> Enumerate(this PlatformBitwise platforms)
+		{
+			return new PlatformEnumerable(platforms);
+		}
+	}
+
 	/// <summary>
 	/// Whether the shader is for vertices or pixels
 	/// </summary>
@@ -60,5 +118,15 @@ namespace OfflineShaderCompiler
 	{
 		Vertex = 0,
 		Fragment = 1,
+	}
+
+	/// <summary>
+	/// The data type for a binding
+	/// </summary>
+	public enum DataType
+	{
+		Float = 0,
+		Int = 1,
+		Bool = 2, // Need to confirm this. Probably right
 	}
 }

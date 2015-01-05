@@ -159,11 +159,17 @@ namespace OfflineShaderCompiler
 	/// </summary>
 	public class PreprocessResult
 	{
+		string location;
 		string shader;
 		IList<Snip> snippets;
 		IList<Error> errors;
 		int unknownID;
 		bool ok;
+
+		public string Location
+		{
+			get { return location; }
+		}
 
 		/// <summary>
 		/// The preprocessed ShaderLab code
@@ -197,6 +203,11 @@ namespace OfflineShaderCompiler
 			get { return ok; }
 		}
 
+		public IList<CompileResult> CompiledCode
+		{
+			get { return null; }
+		}
+
 		/// <summary>
 		/// Creates a new instance
 		/// </summary>
@@ -205,8 +216,9 @@ namespace OfflineShaderCompiler
 		/// <param name="errors"></param>
 		/// <param name="unknownID"></param>
 		/// <param name="ok"></param>
-		public PreprocessResult(string shader, IList<Snip> snippets, IList<Error> errors, int unknownID, bool ok)
+		public PreprocessResult(string location, string shader, IList<Snip> snippets, IList<Error> errors, int unknownID, bool ok)
 		{
+			this.location = location;
 			this.shader = shader;
 			this.snippets = snippets;
 			this.errors = errors;
