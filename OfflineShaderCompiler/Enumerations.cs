@@ -84,9 +84,10 @@ namespace OfflineShaderCompiler
 				current = -1;
 			}
 
-			public void MoveNext()
+			public bool MoveNext()
 			{
-				while (((int)platforms & (1 << ++current)) == 0) ;
+				while (current <= 12 && ((int)platforms & (1 << ++current)) == 0) ;
+				return (current != 12);
 			}
 
 			public Platform Current
@@ -103,11 +104,25 @@ namespace OfflineShaderCompiler
 			{
 				this.platforms = platforms;
 			}
+
+			public void Dispose()
+			{
+			}
 		}
 
-		public IEnumerable<Platform> Enumerate(this PlatformBitwise platforms)
+		public static IEnumerable<Platform> Enumerate(this PlatformBitwise platforms)
 		{
 			return new PlatformEnumerable(platforms);
+		}
+
+		public static PlatformBitwise ToBitwise(IList<Platform> platforms)
+		{
+			if (platforms == null)
+				throw new ArgumentNullException("platforms");
+			var ret = 0;
+			for (int i = 0; i < platforms.Count; i++)
+				ret |= (1 << (int)platforms[i]);
+			return (PlatformBitwise)ret;
 		}
 	}
 

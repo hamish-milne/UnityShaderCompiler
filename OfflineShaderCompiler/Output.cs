@@ -250,7 +250,7 @@ namespace OfflineShaderCompiler
 				throw new ArgumentNullException("intParams");
 			if (intParams.Length < 13)
 				throw new ArgumentException("Array is too short");
-			a = intParams[0]; // -3085 ; changing this will sometimes cause graphical glitches in the editor
+			a = intParams[0]; // -3085 (all platforms minus the consoles)
 			b = intParams[1]; // 0
 			c = intParams[2]; // 0
 			d = intParams[3]; // 1
@@ -265,12 +265,9 @@ namespace OfflineShaderCompiler
 			m = intParams[12]; // 0
 		}
 
-		/// <inheritdoc />
-		public override string ToString()
+		public PlatformBitwise Platforms
 		{
-			return a + "\n" + b + "\n" + c + "\n" + d + "\n" + e + "\n"
-				+ f + "\n" + g + "\n" + h + "\n" + i + "\n" + j + "\n"
-				+ k + "\n" + l + "\n" + m + "\n";
+			get { return (PlatformBitwise)a; }
 		}
 	}
 
