@@ -9,7 +9,6 @@ namespace OfflineShaderCompiler
 		static int Main(string[] args)
 		{
 			var service = new CompilerService("shadercompiler.log");
-			Console.WriteLine(service.GetPlatforms());
 			var result = service.Preprocess(@"
 
 Shader ""Hidden/FXAA II"" {
@@ -27,7 +26,7 @@ CGPROGRAM
 #pragma vertex vert  
 #pragma fragment frag
 #include ""UnityCG.cginc""
-#pragma target 3.0
+#pragma target 5.0
 #pragma glsl
 #pragma exclude_renderers d3d11_9x
 
